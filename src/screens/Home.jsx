@@ -3,7 +3,7 @@ import {
     StyleSheet,
     Text,
     View,
-    FlatList,
+    // FlatList,
     Button,
     TextInput
 } from 'react-native';
@@ -11,6 +11,7 @@ import moment from 'moment';
 
 import Calendar from '../components/Calendar';
 import CurrentTime from '../components/CurrentTime';
+import Notes from '../components/Notes';
 
 const styles = StyleSheet.create({
     rowItem: {
@@ -29,24 +30,24 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         marginHorizontal: 15
     },
-    list: {
-        marginTop: 20,
-        marginHorizontal: 10
-    },
+    // list: {
+    //     marginTop: 20,
+    //     marginHorizontal: 10
+    // },
     listInput: {
         flexDirection: 'row',
         justifyContent: 'center'
     },
-    listItem: {
-        marginVertical: 5,
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
-        paddingBottom: 2,
-        paddingHorizontal: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
+    // listItem: {
+    //     marginVertical: 5,
+    //     borderBottomWidth: 1,
+    //     borderColor: '#ccc',
+    //     paddingBottom: 2,
+    //     paddingHorizontal: 10,
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     alignItems: 'center'
+    // },
     inputField: {
         height: 40,
         borderColor: 'gray',
@@ -56,11 +57,11 @@ const styles = StyleSheet.create({
     }
 });
 
-function Home() {
+function Home({ database }) {
     const [selectedDate, setSelectedDate] = React.useState(moment(moment()));
     const [calendarMonth, setCalendarMonth] = React.useState(moment(selectedDate));
     const [text, setText] = React.useState('');
-    const [notes, setNotes] = React.useState([]);
+    // const [notes, setNotes] = React.useState([]);
 
     const handlePress = (item) => {
         if (item !== -1) {
@@ -72,27 +73,33 @@ function Home() {
         setCalendarMonth(moment(calendarMonth).add(n, 'month'));
     };
 
-    const handleAddNote = () => {
+    const handleAddNote = async () => {
         if (text.trim() === '') {
             return;
         }
 
-        setNotes([...notes, { body: text.trim(), date: selectedDate.format('L') }]);
+        await database.action(async () => {
+            await database.collections.get('notes').create(note => {
+                note.body = text.trim()
+                note.insertedAt = selectedDate
+            })
+        })
+        // setNotes([...notes, { body: text.trim(), date: selectedDate.format('L') }]);
         setText('');
     };
 
-    const handleRemoveNote = (val) => setNotes((prevState) => prevState.filter((note) => {
-        return !(note.date === selectedDate.format('L') && note.body === val);
-    }));
+    // const handleRemoveNote = (val) => setNotes((prevState) => prevState.filter((note) => {
+    //     return !(note.date === selectedDate.format('L') && note.body === val);
+    // }));
 
-    const filterNotes = () => notes.filter((note) => note.date === selectedDate.format('L'));
+    // const filterNotes = () => notes.filter((note) => note.date === selectedDate.format('L'));
 
-    const renderNote = ({ item }) => (
-        <View style={styles.listItem}>
-            <Text>{item.body}</Text>
-            <Button title="x" onPress={() => handleRemoveNote(item.body)} />
-        </View>
-    );
+    // const renderNote = ({ item }) => (
+    //     <View style={styles.listItem}>
+    //         <Text>{item.body}</Text>
+    //         <Button title="x" onPress={() => handleRemoveNote(item.body)} />
+    //     </View>
+    // );
 
     return (
         <View style={styles.container}>
@@ -118,12 +125,13 @@ function Home() {
                         onPress={handleAddNote}
                     />
                 </View>
-                <FlatList
+                <Notes database={database} selectedDate={selectedDate} />
+                {/* <FlatList
                     data={filterNotes()}
                     renderItem={renderNote}
                     style={styles.list}
                     keyExtractor={(item) => item.body}
-                />
+                /> */}
             </View>
         </View>
     );

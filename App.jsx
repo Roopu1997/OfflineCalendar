@@ -10,7 +10,7 @@ import React from 'react';
 
 import Home from './src/screens/Home';
 
-const App = () => <Home />
+const createHome = ({ database }) => () => <Home database={database} />
 
 
-export default App;
+export default createHome;
