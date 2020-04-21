@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
 import withObservables from "@nozbe/with-observables";
+import { Q } from "@nozbe/watermelondb";
 
 const styles = StyleSheet.create({
     list: {
@@ -49,8 +50,8 @@ const Notes = ({ notes }) => {
     );
 };
 
-const enhance = withObservables([], ({ database }) => ({
-    notes: database.collections.get("notes").query()
+const enhance = withObservables(["selectedDate"], ({ database, selectedDate }) => ({
+    notes: database.collections.get("notes").query(Q.where("date", Q.eq(selectedDate.format('L'))))
 }));
 
 export default enhance(Notes);

@@ -1,14 +1,12 @@
 import { Model } from "@nozbe/watermelondb";
-import { field, date, children, action } from "@nozbe/watermelondb/decorators";
+import { field, action } from "@nozbe/watermelondb/decorators";
 
-export default class Movie extends Model {
+export default class Note extends Model {
     static table = "notes";
 
     @field("body") body;
 
-    @date("inserted_at") insertedAt;
-
-    @children("reviews") reviews;
+    @field("date") date;
 
     @action async deleteNote() {
         await this.markAsDeleted();
